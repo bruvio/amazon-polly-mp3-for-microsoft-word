@@ -10,8 +10,7 @@ pollyMetadataTable = os.environ['pollyMetadataTable']
 pattern = r"([a-zA-Z_/-]*)([\d]*)([a-zA-Z_-]*)(^$|[\d]*)([a-zA-Z_-]*)(^$|[\d]*).*"
 
 def convertToInt(item_num):
-    x = int(item_num) if len(item_num) > 0 else 0
-    return x
+    return int(item_num) if len(item_num) > 0 else 0
 
 def sortKey(file_name):
     match_resp = re.findall(pattern, file_name)[0]
@@ -28,14 +27,14 @@ def findTaskId(file_name, items):
 
 def mp3_file(s3_key, items):
     file_name = s3_key.split('/')[-1]
-    return file_name.replace('txt', findTaskId(s3_key, items) + '.mp3')
+    return file_name.replace('txt', f'{findTaskId(s3_key, items)}.mp3')
 
 
 def lambda_handler(event, context):
     table = dynamodb.Table(pollyMetadataTable)
     response = table.scan()
     print(json.dumps(response))
-    print("Event" + str(event))
+    print(f"Event{str(event)}")
 
     items = response['Items']
     filenames = [x['FileName'] for x in items]

@@ -17,7 +17,7 @@ def item_exists(table, file_name):
             }
         )
         item = response['Item']
-        print("Item exists in DynamoDB: {}".format(json.dumps(response)))
+        print(f"Item exists in DynamoDB: {json.dumps(response)}")
     except Exception as e:
         print(e)
         response = None
@@ -32,7 +32,7 @@ def add_item(table, file_name, taskId):
                 'TaskId': taskId
             }
         )
-        print("Added item to DynamoDB: {}".format(json.dumps(response)))
+        print(f"Added item to DynamoDB: {json.dumps(response)}")
     except Exception as e:
         print(e)
         response = None
@@ -40,10 +40,10 @@ def add_item(table, file_name, taskId):
 
 
 def lambda_handler(event, context):
-    print('received event: ' + str(event))
+    print(f'received event: {str(event)}')
     bucketName = event['Records'][0]['s3']['bucket']['name']
     s3Key = event['Records'][0]['s3']['object']['key']
-    print('received S3 Key: ' + str(s3Key))
+    print(f'received S3 Key: {str(s3Key)}')
 
     object_tags = s3client.get_object_tagging(
         Bucket=bucketName,
@@ -78,13 +78,11 @@ def lambda_handler(event, context):
 
         taskId = response['SynthesisTask']['TaskId']
         add_item(table, s3Key, taskId)
-        print("Task id is {} ".format(taskId))
+        print(f"Task id is {taskId} ")
         task_status = polly_client.get_speech_synthesis_task(TaskId = taskId)
-        print(task_status)
     else:
         task_status = "Item already present in DynamoDB, delete to restart polly task"
-        print(task_status)
-
+    print(task_status)
     return {
         'statusCode': 200,
         'body': json.dumps(task_status)
